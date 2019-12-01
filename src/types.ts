@@ -94,7 +94,7 @@ type Dispatcher<T extends { events: Dictionary<Dictionary> }> = {
   [K in keyof T['events']]: (payload: T['events'][K]) => void
 }
 type Events<T> = {
-  [K in keyof T]: { type: K } & T[K]
+  [K in keyof T]: { type: K; payload: T[K] }
 }[keyof T]
 
 // Merge Slice events into Store events
