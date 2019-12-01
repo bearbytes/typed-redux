@@ -72,6 +72,9 @@ type StoreSlices<TStore extends BaseStore> = {
 
 // Helper types
 type ArrayToIntersection<T> = UnionToIntersection<T[keyof T]>
+type PayloadAction<TPayload> = {} extends TPayload
+  ? () => void
+  : (payload: TPayload) => void
 
 export type Dictionary<TValue = any> = Record<string, TValue>
 
@@ -82,7 +85,7 @@ export type Reducer<TState, TEvent, TDispatcher> = (
 ) => TState | void
 
 type Dispatcher<T extends { events: Dictionary<Dictionary> }> = {
-  [K in keyof T['events']]: (payload: T['events'][K]) => void
+  [K in keyof T['events']]: PayloadAction<T['events'][K]>
 }
 
 type Events<T> = {

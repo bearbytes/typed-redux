@@ -27,7 +27,7 @@ function createTestStore() {
             dispatch.counterIncreased({ by: 1 })
           }
           if (state.counter >= 100) {
-            dispatch.counterReset({})
+            dispatch.counterReset()
           }
           break
         }
@@ -51,7 +51,7 @@ test('dispatch events', () => {
   store.dispatch.counterIncreased({ by: 2 })
   expect(store.getState().counter).toBe(2)
 
-  store.dispatch.counterReset({})
+  store.dispatch.counterReset()
   expect(store.getState().counter).toBe(0)
 })
 
