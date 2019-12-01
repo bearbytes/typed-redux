@@ -5,7 +5,7 @@ import {
   CreateStoreOptions,
   CreateStoreResult,
   Dictionary,
-  StoreDispatcher,
+  StoreDispatch,
   StoreInstance,
   StoreSelector,
   StoreStateEx,
@@ -19,10 +19,7 @@ export function createStore<T extends BaseStore>(
   Object.entries(options.slices as Dictionary).forEach(([name, slice]) => {
     Object.assign(initialState, { [name]: slice.initialState })
   })
-  const defaultStoreInstance = createStoreInstance(
-    initialState,
-    options.reducer
-  )
+  const defaultStoreInstance = createStoreInstance(options, initialState)
   const context = createContext<StoreInstance<T>>(defaultStoreInstance)
 
   function useStore<R>(selector: StoreSelector<T, R>): R {
@@ -31,7 +28,7 @@ export function createStore<T extends BaseStore>(
     return selector(getState())
   }
 
-  function useDispatch(): StoreDispatcher<T> {
+  function useDispatch(): StoreDispatch<T> {
     const { dispatch } = useContext(context)
     return dispatch
   }

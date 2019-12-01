@@ -25,7 +25,7 @@ function createTestStore() {
     reducer(state, event) {
       switch (event.type) {
         case 'counterIncreased': {
-          state.counter++
+          state.counter += event.payload.by
         }
       }
     },
@@ -47,4 +47,7 @@ test('create store', () => {
 
 test('dispatch action', () => {
   const store = createTestStore()
+
+  store.dispatch.counter.counterIncreased({ by: 2 })
+  expect(store.getState().counter.counter).toBe(2)
 })

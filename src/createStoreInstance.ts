@@ -2,16 +2,17 @@ import * as immer from 'immer'
 import * as redux from 'redux'
 import {
   BaseStore,
+  CreateStoreOptions,
   Dictionary,
-  StoreDispatcher,
+  SliceDispatch,
+  StoreDispatch,
   StoreInstance,
-  StoreReducer,
   StoreStateEx,
 } from './types'
 
 export function createStoreInstance<T extends BaseStore>(
-  initialState: StoreStateEx<T>,
-  storeReducer: StoreReducer<T>
+  options: CreateStoreOptions<T>,
+  initialState: StoreStateEx<T>
 ): StoreInstance<T> {
   let inReducer = false
   let actionQueue: any[] = []
@@ -31,22 +32,60 @@ export function createStoreInstance<T extends BaseStore>(
 
   function reduxReducer(
     prevState: StoreStateEx<T> | undefined,
-    action: redux.Action
+    action: redux.Action<string>
   ): StoreStateEx<T> {
-    const nextState =
-      prevState == undefined
-        ? initialState
-        : immer.produce(prevState, (draft) => {
-            const state = draft as any
-            const event = action as any
-            return storeReducer(state, event, dispatch) as any
-          })
+    if (prevState == undefined) {
+      return initialState
+    }
+
+    for (const sliceName in options.slices) {
+      const slice = options.slices[sliceName] as any
+
+      const prefix = `${sliceName}/`
+      if (!action.type.startsWith(prefix)) continue
+
+      const typeWithoutPrefix = action.type.substring(prefix.length)
+
+      const nextState = immer.produce(prevState, (draft) => {
+        const state = (draft as any)[sliceName]
+        const event = { ...action, type: typeWithoutPrefix } as any
+        return slice.reducer(state, event, dispatch) as any
+      })
+
+      return nextState
+    }
+
+    const nextState = immer.produce(prevState, (draft) => {
+      const state = draft as any
+      const event = action as any
+      return options.reducer(state, event, dispatch) as any
+    })
 
     return nextState
   }
 
-  const dispatch = new Proxy({} as StoreDispatcher<T>, {
-    get(target, propertyName) {
+  const sliceDispatchs: Dictionary = {}
+  for (const sliceName in options.slices) {
+    sliceDispatchs[sliceName] = new Proxy({} as SliceDispatch<any>, {
+      get(_, propertyName) {
+        if (typeof propertyName != 'string') {
+          throw Error('invalid member access on dispatch')
+        }
+        return (payload: Dictionary) => {
+          dispatchOrQueue({ type: `${sliceName}/${propertyName}`, payload })
+        }
+      },
+    })
+  }
+
+  const dispatch = new Proxy({} as StoreDispatch<T>, {
+    get(_, propertyName) {
+      if (typeof propertyName != 'string') {
+        throw Error('invalid member access on dispatch')
+      }
+      const slice = sliceDispatchs[propertyName]
+      if (slice) return slice
+
       return (payload: Dictionary) => {
         dispatchOrQueue({ type: propertyName, payload })
       }

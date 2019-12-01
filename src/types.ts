@@ -20,10 +20,10 @@ export type CreateStoreOptions<T extends BaseStore> = {
 }
 export interface CreateStoreResult<T extends BaseStore> {
   useStore<R>(selector: StoreSelector<T, R>): R
-  useDispatch(): StoreDispatcher<T>
+  useDispatch(): StoreDispatch<T>
 
   getState(): StoreStateEx<T>
-  dispatch: StoreDispatcher<T>
+  dispatch: StoreDispatch<T>
 }
 
 // createSlice
@@ -33,33 +33,34 @@ export interface CreateSliceOptions<T extends BaseSlice> {
 }
 export interface CreateSliceResult<T extends BaseSlice> {
   initialState: SliceState<T>
+  reducer: SliceReducer<T>
 }
 
 // createStoreInstance
 export interface StoreInstance<T extends BaseStore> {
   getState(): StoreStateEx<T>
-  dispatch: StoreDispatcher<T>
+  dispatch: StoreDispatch<T>
 }
 
 // Accessor types
 type SliceName<T extends BaseSlice> = T['name']
 type SliceState<T extends BaseSlice> = T['state']
 type SliceEvent<T extends BaseSlice> = Events<T['events']>
-type SliceDispatcher<T extends BaseSlice> = Dispatcher<T>
+export type SliceDispatch<T extends BaseSlice> = Dispatch<T>
 type SliceReducer<T extends BaseSlice> = Reducer<
   SliceState<T>,
   SliceEvent<T>,
-  SliceDispatcher<T>
+  SliceDispatch<T>
 >
 
 type StoreState<T extends BaseStore> = T['state']
 export type StoreStateEx<T extends BaseStore> = StoreStateWithSlices<T>
 type StoreEvent<T extends BaseStore> = Events<T['events']>
-export type StoreDispatcher<T extends BaseStore> = Dispatcher<T>
+export type StoreDispatch<T extends BaseStore> = StoreDispatchWithSlices<T>
 export type StoreReducer<T extends BaseStore> = Reducer<
   StoreStateEx<T>,
   StoreEvent<T>,
-  StoreDispatcher<T>
+  StoreDispatch<T>
 >
 export type StoreSelector<T extends BaseStore, R> = (
   store: StoreStateEx<T>
@@ -84,7 +85,7 @@ export type Reducer<TState, TEvent, TDispatcher> = (
   dispatch: TDispatcher
 ) => TState | void
 
-type Dispatcher<T extends { events: Dictionary<Dictionary> }> = {
+type Dispatch<T extends { events: Dictionary<Dictionary> }> = {
   [K in keyof T['events']]: PayloadAction<T['events'][K]>
 }
 
@@ -112,15 +113,27 @@ type StoreStateWithSlices<TStore extends BaseStore> = ArrayToIntersection<
 > &
   StoreState<TStore>
 
-// e.g. { settings: { fontSize:number }, todos: { items: TodoItem[] } }
 type StoreSlicesPartialState<TStore extends BaseStore> = {
   [K in keyof StoreSlices<TStore>]: SingleSlicePartialState<
     StoreSlices<TStore>[K]
   >
 }
-// e.g. { settings: { fontSize: number } }
 type SingleSlicePartialState<TSlice extends BaseSlice> = {
   [name in TSlice['name']]: TSlice['state']
+}
+
+// Merge Slice dispatchs into Store dispatch
+type StoreDispatchWithSlices<TStore extends BaseStore> = ArrayToIntersection<
+  StoreSlicesPartialDispatch<TStore>
+> &
+  Dispatch<TStore>
+type StoreSlicesPartialDispatch<TStore extends BaseStore> = {
+  [K in keyof StoreSlices<TStore>]: SingleSlicePartialDispatch<
+    StoreSlices<TStore>[K]
+  >
+}
+type SingleSlicePartialDispatch<TSlice extends BaseSlice> = {
+  [name in TSlice['name']]: SliceDispatch<TSlice>
 }
 
 // Pass createSlice() results into createStore()

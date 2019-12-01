@@ -5,5 +5,6 @@ export function createSlice<T extends BaseSlice>(
 ): CreateSliceResult<T> {
   return {
     initialState: options.initialState,
+    reducer: options.reducer,
   }
 }
