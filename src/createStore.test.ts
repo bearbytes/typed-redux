@@ -1,9 +1,8 @@
 import { createStore } from './createStore'
 
-type MyStore = {
+type CounterStore = {
   state: {
     counter: number
-    numIncreases: number
   }
   events: {
     counterIncreased: { by: number }
@@ -12,16 +11,14 @@ type MyStore = {
 }
 
 function createTestStore() {
-  return createStore<MyStore>({
+  return createStore<CounterStore>({
     slices: {},
     initialState: {
       counter: 0,
-      numIncreases: 0,
     },
     reducer(state, event, dispatch) {
       switch (event.type) {
         case 'counterIncreased': {
-          state.numIncreases++
           state.counter += event.payload.by
           if (state.counter > 10 && state.counter < 100) {
             dispatch.counterIncreased({ by: 1 })

@@ -71,7 +71,7 @@ type StoreSlices<TStore extends BaseStore> = {
 }
 
 // Helper types
-type ArrayToIntersection<T> = UnionToIntersection<T[keyof T]>
+export type ArrayToIntersection<T> = UnionToIntersection<T[keyof T]>
 type PayloadAction<TPayload> = {} extends TPayload
   ? () => void
   : (payload: TPayload) => void
@@ -93,36 +93,38 @@ type Events<T> = {
 }[keyof T]
 
 // Merge Slice events into Store events
-export type StoreEventsWithSlices<TStore extends BaseStore> =
+type StoreEventsWithSlices<TStore extends BaseStore> =
   | Events<TStore>
   | StoreSliceEvents<TStore>
 
-export type StoreSliceEvents<TStore extends BaseStore> = ValuesType<
+type StoreSliceEvents<TStore extends BaseStore> = ValuesType<
   SliceEventPartials<TStore>
 >
-export type SliceEventPartials<TStore extends BaseStore> = {
+type SliceEventPartials<TStore extends BaseStore> = {
   [K in keyof StoreSlices<TStore>]: Events<StoreSlices<TStore>[K]['events']> & {
     slice: StoreSlices<TStore>[K]['name']
   }
 }
 
 // Merge Slice states into Store state
-type StoreStateWithSlices<TStore extends BaseStore> = SliceStateIntersection<
-  TStore
+type StoreStateWithSlices<TStore extends BaseStore> = ArrayToIntersection<
+  StoreSlicesPartialState<TStore>
 > &
   StoreState<TStore>
-type SliceStateIntersection<TStore extends BaseStore> = ArrayToIntersection<
-  SliceStatePartials<TStore>
->
-type SliceStatePartials<TStore extends BaseStore> = {
-  [K in keyof StoreSlices<TStore>]: SliceStatePartial<StoreSlices<TStore>[K]>
+
+// e.g. { settings: { fontSize:number }, todos: { items: TodoItem[] } }
+type StoreSlicesPartialState<TStore extends BaseStore> = {
+  [K in keyof StoreSlices<TStore>]: SingleSlicePartialState<
+    StoreSlices<TStore>[K]
+  >
 }
-type SliceStatePartial<TSlice extends BaseSlice> = {
+// e.g. { settings: { fontSize: number } }
+type SingleSlicePartialState<TSlice extends BaseSlice> = {
   [name in TSlice['name']]: TSlice['state']
 }
 
 // Pass createSlice() results into createStore()
-export type StoreCreateSliceResults<
+type StoreCreateSliceResults<
   TStore extends BaseStore
 > = CreateSliceResultIntersection<TStore>
 type CreateSliceResultIntersection<
