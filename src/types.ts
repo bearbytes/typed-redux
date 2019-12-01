@@ -70,29 +70,21 @@ type StoreSlices<TStore extends BaseStore> = {
     : never
 }
 
-// Function types
-export type Dictionary<TValue = any> = Record<string, TValue>
-export type Select<TState, TResult> = Func<TState, TResult>
-
-export type Reducer<TState, TEvent, TDispatcher> = Func3<
-  TState,
-  TEvent,
-  TDispatcher,
-  TState | void
->
-
 // Helper types
 type ArrayToIntersection<T> = UnionToIntersection<T[keyof T]>
-type ArrayToUnion<T> = T[keyof T]
-type Action<A1> = (arg1: A1) => void
-type Func<A1, R> = (arg1: A1) => R
-type Func2<A1, A2, R> = (arg1: A1, arg2: A2) => R
-type Func3<A1, A2, A3, R> = (arg1: A1, arg2: A2, arg3: A3) => R
 
-// Complex helper types
+export type Dictionary<TValue = any> = Record<string, TValue>
+
+export type Reducer<TState, TEvent, TDispatcher> = (
+  state: TState,
+  event: TEvent,
+  dispatch: TDispatcher
+) => TState | void
+
 type Dispatcher<T extends { events: Dictionary<Dictionary> }> = {
   [K in keyof T['events']]: (payload: T['events'][K]) => void
 }
+
 type Events<T> = {
   [K in keyof T]: { type: K; payload: T[K] }
 }[keyof T]
