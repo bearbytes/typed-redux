@@ -13,15 +13,17 @@ export type BaseStore = {
 }
 
 // createStore
-export type CreateStoreOptions<TStore extends BaseStore> = {
-  initialState: StoreState<TStore>
-  reducer: StoreReducer<TStore>
-  slices: StoreCreateSliceResults<TStore>
+export type CreateStoreOptions<T extends BaseStore> = {
+  initialState: StoreState<T>
+  reducer: StoreReducer<T>
+  slices: StoreCreateSliceResults<T>
 }
-export interface CreateStoreResult<TStore extends BaseStore> {
-  useStore<R>(selector: StoreSelector<TStore, R>): R
-  useDispatch(): StoreDispatcher<TStore>
-  dispatch: StoreDispatcher<TStore>
+export interface CreateStoreResult<T extends BaseStore> {
+  useStore<R>(selector: StoreSelector<T, R>): R
+  useDispatch(): StoreDispatcher<T>
+
+  getState(): StoreStateEx<T>
+  dispatch: StoreDispatcher<T>
 }
 
 // createSlice

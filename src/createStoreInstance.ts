@@ -1,4 +1,4 @@
-import redux from 'redux'
+import * as redux from 'redux'
 import {
   BaseStore,
   Dictionary,

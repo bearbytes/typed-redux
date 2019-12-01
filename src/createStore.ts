@@ -36,11 +36,10 @@ export function createStore<T extends BaseStore>(
     return dispatch
   }
 
-  const dispatch = defaultStoreInstance.dispatch
-
   return {
     useStore,
     useDispatch,
-    dispatch,
+    getState: defaultStoreInstance.getState,
+    dispatch: defaultStoreInstance.dispatch,
   }
 }
