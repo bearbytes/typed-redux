@@ -1,4 +1,10 @@
-import { createContext, useContext } from 'react'
+import {
+  createContext,
+  DependencyList,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { createStoreInstance } from './createStoreInstance'
 import {
   BaseStore,
@@ -14,7 +20,6 @@ import {
 export function createStore<T extends BaseStore>(
   options: CreateStoreOptions<T>
 ): CreateStoreResult<T> {
-  // TODO fix typing
   const initialState = { ...options.initialState } as StoreStateEx<T>
   Object.entries(options.slices as Dictionary).forEach(([name, slice]) => {
     Object.assign(initialState, { [name]: slice.initialState })
@@ -22,10 +27,17 @@ export function createStore<T extends BaseStore>(
   const defaultStoreInstance = createStoreInstance(options, initialState)
   const context = createContext<StoreInstance<T>>(defaultStoreInstance)
 
-  function useStore<R>(selector: StoreSelector<T, R>): R {
-    // TODO: change tracking
-    const { getState } = useContext(context)
-    return selector(getState())
+  function useStore<R>(
+    selector: StoreSelector<T, R>,
+    dependencyList: DependencyList
+  ): R {
+    const { subscribe, getState } = useContext(context)
+    const [state, setState] = useState(() => selector(getState()))
+    useEffect(
+      () => subscribe((state) => setState(selector(state))),
+      dependencyList
+    )
+    return state
   }
 
   function useDispatch(): StoreDispatch<T> {

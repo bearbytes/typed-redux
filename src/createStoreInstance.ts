@@ -7,6 +7,7 @@ import {
   SliceDispatch,
   StoreDispatch,
   StoreInstance,
+  StoreListener,
   StoreStateEx,
 } from './types'
 
@@ -28,6 +29,9 @@ export function createStoreInstance<T extends BaseStore>(
       reduxStore.dispatch(actionQueue.shift())
     }
     inReducer = false
+
+    const stateAfterUpdate = reduxStore.getState()
+    listeners.forEach((listener) => listener(stateAfterUpdate))
   }
 
   function reduxReducer(
@@ -95,5 +99,11 @@ export function createStoreInstance<T extends BaseStore>(
     return reduxStore.getState()
   }
 
-  return { getState, dispatch }
+  const listeners = new Set<StoreListener<T>>()
+  function subscribe(listener: StoreListener<T>): () => void {
+    listeners.add(listener)
+    return () => listeners.delete(listener)
+  }
+
+  return { getState, dispatch, subscribe }
 }

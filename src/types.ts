@@ -1,3 +1,4 @@
+import { DependencyList } from 'react'
 import { UnionToIntersection, ValuesType } from 'utility-types'
 
 // Abstract base types
@@ -19,7 +20,7 @@ export type CreateStoreOptions<T extends BaseStore> = {
   slices: StoreCreateSliceResults<T>
 }
 export interface CreateStoreResult<T extends BaseStore> {
-  useStore<R>(selector: StoreSelector<T, R>): R
+  useStore<R>(selector: StoreSelector<T, R>, dependencyList: DependencyList): R
   useDispatch(): StoreDispatch<T>
 
   getState(): StoreStateEx<T>
@@ -39,6 +40,7 @@ export interface CreateSliceResult<T extends BaseSlice> {
 // createStoreInstance
 export interface StoreInstance<T extends BaseStore> {
   getState(): StoreStateEx<T>
+  subscribe(listener: StoreListener<T>): () => void
   dispatch: StoreDispatch<T>
 }
 
@@ -65,6 +67,9 @@ export type StoreReducer<T extends BaseStore> = Reducer<
 export type StoreSelector<T extends BaseStore, R> = (
   store: StoreStateEx<T>
 ) => R
+export type StoreListener<T extends BaseStore> = (
+  state: StoreStateEx<T>
+) => void
 type StoreSlices<TStore extends BaseStore> = {
   [K in keyof TStore['slices']]: TStore['slices'][K] extends BaseSlice
     ? TStore['slices'][K]
