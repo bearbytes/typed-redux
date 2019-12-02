@@ -22,12 +22,10 @@ function createTestStore() {
     initialState: {
       counter: 0,
     },
-    reducer(state, event) {
-      switch (event.type) {
-        case 'counterIncreased': {
-          state.counter += event.payload.by
-        }
-      }
+    reducer: {
+      counterIncreased(s, e) {
+        s.counter += e.by
+      },
     },
   })
 
@@ -36,7 +34,7 @@ function createTestStore() {
       counter: counterSlice,
     },
     initialState: {},
-    reducer(state, event, dispatch) {},
+    reducer: {},
   })
 }
 

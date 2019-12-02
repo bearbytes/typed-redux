@@ -44,12 +44,11 @@ export function createStoreInstance<T extends BaseStore>(
       const prefix = `${sliceName}/`
       if (!action.type.startsWith(prefix)) continue
 
-      const typeWithoutPrefix = action.type.substring(prefix.length)
-
       const nextState = immer.produce(prevState, (draft) => {
         const state = (draft as any)[sliceName]
-        const event = { ...action, type: typeWithoutPrefix } as any
-        return slice.reducer(state, event, dispatch) as any
+        const type = action.type.substring(prefix.length)
+        const payload = (action as any).payload
+        return slice.reducer[type](state, payload, dispatch) as any
       })
 
       return nextState
@@ -57,8 +56,8 @@ export function createStoreInstance<T extends BaseStore>(
 
     const nextState = immer.produce(prevState, (draft) => {
       const state = draft as any
-      const event = action as any
-      return options.reducer(state, event, dispatch) as any
+      const { type, payload } = action as any
+      return options.reducer[type](state, payload, dispatch) as any
     })
 
     return nextState

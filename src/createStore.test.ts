@@ -16,23 +16,19 @@ function createTestStore() {
     initialState: {
       counter: 0,
     },
-    reducer(state, event, dispatch) {
-      switch (event.type) {
-        case 'counterIncreased': {
-          state.counter += event.payload.by
-          if (state.counter > 10 && state.counter < 100) {
-            dispatch.counterIncreased({ by: 1 })
-          }
-          if (state.counter >= 100) {
-            dispatch.counterReset()
-          }
-          break
+    reducer: {
+      counterIncreased(s, e, dispatch) {
+        s.counter += e.by
+        if (s.counter > 10 && s.counter < 100) {
+          dispatch.counterIncreased({ by: 1 })
         }
-        case 'counterReset': {
-          state.counter = 0
-          break
+        if (s.counter >= 100) {
+          dispatch.counterReset()
         }
-      }
+      },
+      counterReset(s) {
+        s.counter = 0
+      },
     },
   })
 }
