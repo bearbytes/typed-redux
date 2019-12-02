@@ -71,12 +71,11 @@ export type StoreListener<T extends BaseStore> = (
   state: StoreStateEx<T>
 ) => void
 type StoreSlices<TStore extends BaseStore> = {
-  [K in keyof TStore['slices']]: TStore['slices'][K] extends BaseSlice
-    ? TStore['slices'][K]
-    : never
+  [K in TupleKeys<TStore['slices']>]: Extract<TStore['slices'][K], BaseSlice>
 }
 
 // Helper types
+type TupleKeys<T> = Exclude<keyof T, keyof []>
 export type ArrayToIntersection<T> = UnionToIntersection<T[keyof T]>
 type PayloadAction<TPayload> = {} extends TPayload
   ? () => void

@@ -11,8 +11,16 @@ type CounterSlice = {
   }
 }
 
+type SettingsSlice = {
+  name: 'settings'
+  state: {}
+  events: {
+    foo: {}
+  }
+}
+
 type TestStore = {
-  slices: [CounterSlice]
+  slices: [CounterSlice, SettingsSlice]
   state: {}
   events: {}
 }
@@ -29,9 +37,17 @@ function createTestStore() {
     },
   })
 
+  const settingsSlice = createSlice<SettingsSlice>({
+    initialState: {},
+    reducer: {
+      foo() {},
+    },
+  })
+
   return createStore<TestStore>({
     slices: {
       counter: counterSlice,
+      settings: settingsSlice,
     },
     initialState: {},
     reducer: {},
