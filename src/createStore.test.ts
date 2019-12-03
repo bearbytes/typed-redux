@@ -4,7 +4,7 @@ type CounterStore = {
   state: {
     counter: number
   }
-  events: {
+  messages: {
     counterIncreased: { by: number }
     counterReset: {}
   }
@@ -16,9 +16,9 @@ function createTestStore() {
     initialState: {
       counter: 0,
     },
-    reducer: {
-      counterIncreased(s, e, dispatch) {
-        s.counter += e.by
+    reducers: {
+      counterIncreased(s, m, dispatch) {
+        s.counter += m.by
         if (s.counter > 10 && s.counter < 100) {
           dispatch.counterIncreased({ by: 1 })
         }

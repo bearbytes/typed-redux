@@ -5,18 +5,18 @@ import { UnionToIntersection, ValuesType } from 'utility-types'
 export type BaseSlice = {
   name: string
   state: Dictionary
-  events: Dictionary<Dictionary>
+  messages: Dictionary<Dictionary>
 }
 export type BaseStore = {
   state: Dictionary
-  events: Dictionary<Dictionary>
+  messages: Dictionary<Dictionary>
   slices?: BaseSlice[]
 }
 
 // createStore
 export type CreateStoreOptions<T extends BaseStore> = {
   initialState: StoreState<T>
-  reducer: StoreReducer<T>
+  reducers: StoreReducer<T>
   slices: StoreCreateSliceResults<T>
 }
 export interface CreateStoreResult<T extends BaseStore> {
@@ -47,21 +47,21 @@ export interface StoreInstance<T extends BaseStore> {
 // Accessor types
 type SliceName<T extends BaseSlice> = T['name']
 type SliceState<T extends BaseSlice> = T['state']
-type SliceEvent<T extends BaseSlice> = EventsUnion<T['events']>
+type SliceMessage<T extends BaseSlice> = MessagesUnion<T['messages']>
 export type SliceDispatch<T extends BaseSlice> = Dispatch<T>
 type SliceReducer<T extends BaseSlice> = Reducer<
   SliceState<T>,
-  T['events'],
+  T['messages'],
   SliceDispatch<T>
 >
 
 type StoreState<T extends BaseStore> = T['state']
 export type StoreStateEx<T extends BaseStore> = StoreStateWithSlices<T>
-type StoreEvent<T extends BaseStore> = EventsUnion<T['events']>
+type StoreMessage<T extends BaseStore> = MessagesUnion<T['messages']>
 export type StoreDispatch<T extends BaseStore> = StoreDispatchWithSlices<T>
 export type StoreReducer<T extends BaseStore> = Reducer<
   StoreStateEx<T>,
-  T['events'],
+  T['messages'],
   StoreDispatch<T>
 >
 export type StoreSelector<T extends BaseStore, R> = (
@@ -83,37 +83,37 @@ type PayloadAction<TPayload> = {} extends TPayload
 
 export type Dictionary<TValue = any> = Record<string, TValue>
 
-type Dispatch<T extends { events: Dictionary<Dictionary> }> = {
-  [K in keyof T['events']]: PayloadAction<T['events'][K]>
+type Dispatch<T extends { messages: Dictionary<Dictionary> }> = {
+  [K in keyof T['messages']]: PayloadAction<T['messages'][K]>
 }
 
-type EventsUnion<T> = {
+type MessagesUnion<T> = {
   [K in keyof T]: { type: K; payload: T[K] }
 }[keyof T]
 
-// Merge Slice events into Store events
-type StoreEventsWithSlices<TStore extends BaseStore> =
-  | EventsUnion<TStore>
-  | StoreSliceEvents<TStore>
+// Merge Slice messages into Store messages
+type StoreMessagesWithSlices<TStore extends BaseStore> =
+  | MessagesUnion<TStore>
+  | StoreSliceMessages<TStore>
 
-type StoreSliceEvents<TStore extends BaseStore> = ValuesType<
-  SliceEventPartials<TStore>
+type StoreSliceMessages<TStore extends BaseStore> = ValuesType<
+  SliceMessagePartials<TStore>
 >
-type SliceEventPartials<TStore extends BaseStore> = {
-  [K in keyof StoreSlices<TStore>]: EventsUnion<
-    StoreSlices<TStore>[K]['events']
+type SliceMessagePartials<TStore extends BaseStore> = {
+  [K in keyof StoreSlices<TStore>]: MessagesUnion<
+    StoreSlices<TStore>[K]['messages']
   > & {
     slice: StoreSlices<TStore>[K]['name']
   }
 }
 
-// Merge Events into Reducer
-export type Reducer<TState, TEvents, TDispatch> = {
-  [K in keyof TEvents]: SingleEventReducer<TState, TEvents[K], TDispatch>
+// Merge Messages into Reducer
+export type Reducer<TState, TMessages, TDispatch> = {
+  [K in keyof TMessages]: SingleMessageReducer<TState, TMessages[K], TDispatch>
 }
-type SingleEventReducer<TState, TEvent, TDispatch> = (
+type SingleMessageReducer<TState, TMessage, TDispatch> = (
   state: TState,
-  payload: TEvent,
+  payload: TMessage,
   dispatch: TDispatch
 ) => TState | void
 

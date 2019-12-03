@@ -6,7 +6,7 @@ type CounterSlice = {
   state: {
     counter: number
   }
-  events: {
+  messages: {
     counterIncreased: { by: number }
   }
 }
@@ -14,7 +14,7 @@ type CounterSlice = {
 type SettingsSlice = {
   name: 'settings'
   state: {}
-  events: {
+  messages: {
     foo: {}
   }
 }
@@ -22,7 +22,7 @@ type SettingsSlice = {
 type TestStore = {
   slices: [CounterSlice, SettingsSlice]
   state: {}
-  events: {}
+  messages: {}
 }
 
 function createTestStore() {
@@ -50,7 +50,7 @@ function createTestStore() {
       settings: settingsSlice,
     },
     initialState: {},
-    reducer: {},
+    reducers: {},
   })
 }
 
