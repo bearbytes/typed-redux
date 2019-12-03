@@ -52,7 +52,7 @@ export function createStoreInstance<T extends BaseStore>(
         const state = (draft as any)[sliceName]
         const type = action.type.substring(prefix.length)
         const payload = (action as any).payload
-        return slice.reducer[type](state, payload, dispatch) as any
+        return slice.reducers[type](state, payload, dispatch) as any
       })
 
       return nextState
@@ -61,7 +61,7 @@ export function createStoreInstance<T extends BaseStore>(
     const nextState = immer.produce(prevState, (draft) => {
       const state = draft as any
       const { type, payload } = action as any
-      return options.reducer[type](state, payload, dispatch) as any
+      return options.reducers[type](state, payload, dispatch) as any
     })
 
     return nextState
