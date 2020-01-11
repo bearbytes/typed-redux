@@ -1,6 +1,6 @@
 {
   "name": "@bearbytes/type-redux",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "prepare": "tsc",
-    "patch": "npm version patch && npm run publish",
+    "patch": "npm version patch && npm publish",
     "test": "jest --config ./jest.config.js"
   },
   "author": "",
