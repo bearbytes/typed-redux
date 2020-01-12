@@ -17,6 +17,7 @@ export function createStoreInstance<T extends BaseStore>(
 ): StoreInstance<T> {
   let inReducer = false
   let actionQueue: any[] = []
+  const listeners = new Set<StoreListener<T>>()
 
   const reduxStore = redux.createStore(reduxReducer)
 
@@ -99,10 +100,12 @@ export function createStoreInstance<T extends BaseStore>(
     return reduxStore.getState()
   }
 
-  const listeners = new Set<StoreListener<T>>()
   function subscribe(listener: StoreListener<T>): () => void {
+    listener(reduxStore.getState())
     listeners.add(listener)
-    return () => listeners.delete(listener)
+    return () => {
+      return listeners.delete(listener)
+    }
   }
 
   return { getState, dispatch, subscribe }
