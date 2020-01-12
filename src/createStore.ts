@@ -29,7 +29,7 @@ export function createStore<T extends BaseStore>(
 
   function useStore<R>(
     selector: StoreSelector<T, R>,
-    dependencyList: DependencyList
+    dependencyList?: DependencyList
   ): R {
     const { subscribe, getState } = useContext(context)
     const [state, setState] = useState(() => selector(getState()))

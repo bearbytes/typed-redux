@@ -20,7 +20,7 @@ export type CreateStoreOptions<T extends BaseStore> = {
   slices: StoreCreateSliceResults<T>
 }
 export interface CreateStoreResult<T extends BaseStore> {
-  useStore<R>(selector: StoreSelector<T, R>, dependencyList: DependencyList): R
+  useStore<R>(selector: StoreSelector<T, R>, dependencyList?: DependencyList): R
   useDispatch(): StoreDispatch<T>
 
   getState(): StoreStateEx<T>
